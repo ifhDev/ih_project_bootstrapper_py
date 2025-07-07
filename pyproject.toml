@@ -1,7 +1,7 @@
 [project]
 name = "ih-project-bootstrapper-py"
 version = "0.1.0"
-description = "Add your description here"
+description = "Cross-platform setup for my projects."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []

@@ -15,7 +15,7 @@ Cross-platform setup for my projects. Made with data science in mind but might b
 ## Dependencies
 
 - **Python** 3.8 or higher (made with 3.12, recommended 3.12+)
-- [`uv`](https://github.com/astral-sh/uv) (install with `pip install uv`)
+- This project uses [`uv`](https://github.com/astral-sh/uv) (install with `pip install uv`) for dependency management; dependencies are in `pyproject.toml`
 
 ## Quickstart
 
@@ -33,11 +33,3 @@ Cross-platform setup for my projects. Made with data science in mind but might b
 
 - Edit `config.json` to change your standard folder structure, default Python version, or your preferred starter packages.
 - Update the `gitignore_entries` list in `config.json` to change what is ignored by default.
-
-## License
-
-MIT License
-
-## Author
-
-Irene H

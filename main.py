@@ -4,8 +4,14 @@ import sys
 import json
 import subprocess
 
-
 # Universal variables
+from project_data_templates import (
+    DATA_SCIENCE_FOLDERS,
+    DATA_SCIENCE_FILES,
+    LIGHTWEIGHT_FOLDERS,
+    LIGHTWEIGHT_FILES,
+    GITIGNORE_ENTRIES,
+)
 CONFIG_FILE = "config.json"
 
 
@@ -19,6 +25,16 @@ def dependency_check():
         return result.returncode == 0
     except FileNotFoundError:
         return False
+
+def choose_project_template():
+    print("\nChoose project type:")
+    print("1) Data Science (Cookiecutter style folders and .py starter files)")
+    print("2) Lightweight Python (Kenneth Reitz style, only /sample, /docs, /tests)")
+    choice = input("Enter 1 or 2: ").strip()
+    if choice not in ("1", "2"):
+        print("Invalid choice, defaulting to Data Science template.")
+        choice = "1"
+    return choice
 
 def prompt_for_valid_directory(prompt_message):
     """
@@ -46,6 +62,17 @@ def prompt_for_valid_directory(prompt_message):
             else:
                 print("Please enter a new folder path.")
 
+def choose_project_template():
+    print("\nChoose project type:")
+    print("1) Data Science (Cookiecutter style folders and .py starter files)")
+    print("2) Lightweight Python (Kenneth Reitz style, only /sample, /docs, /tests)")
+    choice = input("Enter 1 or 2: ").strip()
+    if choice not in ("1", "2"):
+        print("Invalid choice, defaulting to Data Science template.")
+        choice = "1"
+    return choice
+
+
 def load_config():
     """
     Loads config from file, or interactively creates a new one with safety checks.
@@ -64,37 +91,10 @@ def load_config():
         default_python_version = input("Enter your preferred default Python version (e.g., 3.12): ").strip()
         standard_packages = input("Enter standard packages (comma-separated, e.g., pandas,numpy): ").split(",")
         standard_packages = [pkg.strip() for pkg in standard_packages if pkg.strip()]
-
-        # change standard folders here or later in config
-        project_folders = [
-        "dev_notes", 
-        "implementations", 
-        "implementations/scripts", 
-        "notebooks", 
-        "src", 
-        "src/data", 
-        "src/models", 
-        "tests", 
-        "visuals"
-        ]
-
-        # configured to work with standard folders
-        gitignore_entries = [
-            "",
-            "",
-            "# data folder",
-            "src/data/*",
-            "visuals/",
-            "",
-            "# dev notes",
-            "dev_notes/"
-        ]
         config = {
             "default_project_dir": default_project_dir,
             "default_python_version": default_python_version,
-            "standard_packages": standard_packages,
-            "project_folders": project_folders,
-            "gitignore_entries": gitignore_entries
+            "standard_packages": standard_packages
         }
         with open(CONFIG_FILE, "w") as f:
             json.dump(config, f, indent=4)
@@ -215,19 +215,27 @@ def init_project(config, project_path):
     finally:
         os.chdir(cwd)
 
-def create_standard_folders(config, project_path):
-    folders = config.get("project_folders", [])
+def create_structure(project_path, folders, files):
+    # folders
     for folder in folders:
-        path = os.path.join(project_path, folder)
-        os.makedirs(path, exist_ok=True)
-        print(f"Created folder: {path}")
+        os.makedirs(os.path.join(project_path, folder), exist_ok=True)
+        print(f"Created folder: {os.path.join(project_path, folder)}")
+    # files
+    for file in files:
+        file_path = os.path.join(project_path, file)
+        dir_name = os.path.dirname(file_path)
+        os.makedirs(dir_name, exist_ok=True)
+        if not os.path.exists(file_path):
+            with open(file_path, "w") as f:
+                f.write(f'# {os.path.basename(file)}: Starter file\n')
+            print(f"Created file: {file_path}")
 
-def write_gitignore(config, project_path):
+def write_gitignore(project_path):
     """
-    Add standard .gitignore entries from config (as a list of lines).
+    Add standard .gitignore entries from data template (as a list of lines).
     Appends to existing .gitignore if present, or creates a new one.
     """
-    gitignore_entries = config.get("gitignore_entries", [])
+    gitignore_entries = GITIGNORE_ENTRIES
     if gitignore_entries:
         gitignore_path = os.path.join(project_path, ".gitignore")
         mode = "a" if os.path.exists(gitignore_path) else "w"
@@ -241,24 +249,35 @@ def load_template(filename):
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
-def copy_project_setup_script(project_path):
+def copy_project_setup_script(project_path, project_style):
     """
-    Copies all template files from /templates to implementations/scripts in the new project.
+    Copies all template files from /templates to the correct destination in the new project.
+    - For Data Science style: to src/tools/
+    - For Lightweight Python: to sample/scripts/
     """
     templates_dir = os.path.join(os.path.dirname(__file__), "templates")
-    scripts_dir = os.path.join(project_path, "implementations", "scripts")
-    os.makedirs(scripts_dir, exist_ok=True)
+
+    # target decision
+    if project_style == "1":  
+        # Data Science
+        target_dir = os.path.join(project_path, "src/tools/")
+    else:
+        # lightweight Python
+        target_dir = os.path.join(project_path, "sample/scripts/")
+
+    os.makedirs(target_dir, exist_ok=True)
 
     for fname in os.listdir(templates_dir):
         source_path = os.path.join(templates_dir, fname)
-        dest_path = os.path.join(scripts_dir, fname)
-        if fname.endswith(('.py', '.sh', '.bat', '.txt')):
+        dest_path = os.path.join(target_dir, fname)
+        # text files
+        if fname.endswith(('.py', '.sh', '.bat', '.txt', '.md', '.rst')):
             with open(source_path, "r", encoding="utf-8") as fsrc:
                 content = fsrc.read()
             with open(dest_path, "w", encoding="utf-8") as fdst:
                 fdst.write(content)
         else:
-            # for unexpected files
+
             shutil.copy2(source_path, dest_path)
         print(f"Copied {fname} to {dest_path}")
 
@@ -270,6 +289,16 @@ def main():
         return
     # setup of names and locations
     config = load_config()
+    
+    # defining project template
+    project_style = choose_project_template()
+    if project_style == "1":
+        folders = DATA_SCIENCE_FOLDERS
+        files = DATA_SCIENCE_FILES
+    else:
+        folders = LIGHTWEIGHT_FOLDERS
+        files = LIGHTWEIGHT_FILES
+
     project_path = get_project_path(config)
     final_path = create_project_folder(config, project_path)
     if not final_path:
@@ -284,13 +313,14 @@ def main():
         return
     
     # creating folder structure
-    create_standard_folders(config, final_path)
+    create_structure(final_path, folders, files)
 
-    # expand gitignore
-    write_gitignore(config, final_path)
+    # expand gitignore for data science
+    if project_style == "1":
+        write_gitignore(final_path)
 
     # copy setup scripts
-    copy_project_setup_script(final_path)
+    copy_project_setup_script(final_path, project_style)
 
     print("All done! Your new project is ready.")
 

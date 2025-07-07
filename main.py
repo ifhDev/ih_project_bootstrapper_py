@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import subprocess
 
@@ -8,6 +9,16 @@ CONFIG_FILE = "config.json"
 
 
 # Functions
+def dependency_check():
+    if sys.version_info < (3, 8):
+        print("This script requires Python 3.8 or higher.")
+        exit(1)
+    try:
+        result = subprocess.run(["uv", "--version"], capture_output=True, text=True)
+        return result.returncode == 0
+    except FileNotFoundError:
+        return False
+
 def prompt_for_valid_directory(prompt_message):
     """
     Repeatedly prompt the user for a folder path until:
@@ -210,7 +221,7 @@ def create_standard_folders(config, project_path):
         os.makedirs(path, exist_ok=True)
         print(f"Created folder: {path}")
 
-def write_gitignore(project_path, config):
+def write_gitignore(config, project_path):
     """
     Add standard .gitignore entries from config (as a list of lines).
     Appends to existing .gitignore if present, or creates a new one.
@@ -227,6 +238,10 @@ def write_gitignore(project_path, config):
 
 # Main Function
 def main():
+    if not dependency_check():
+        print("The 'uv' tool is not installed on this system.")
+        print("Please install uv from https://github.com/astral-sh/uv and try again.")
+        return
     # setup of names and locations
     config = load_config()
     project_path = get_project_path(config)
@@ -243,10 +258,10 @@ def main():
         return
     
     # creating folder structure
-    create_standard_folders(final_path, config)
+    create_standard_folders(config, final_path)
 
     # expand gitignore
-    write_gitignore(final_path, config)
+    write_gitignore(config, final_path)
     print("All done! Your new project is ready.")
 
 

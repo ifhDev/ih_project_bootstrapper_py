@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import json
 import subprocess
@@ -231,10 +232,35 @@ def write_gitignore(config, project_path):
         gitignore_path = os.path.join(project_path, ".gitignore")
         mode = "a" if os.path.exists(gitignore_path) else "w"
         with open(gitignore_path, mode) as f:
-            # Always end with a newline, so formatting stays clean
             f.write('\n'.join(gitignore_entries) + "\n")
         print("Added standard entries to .gitignore")
 
+def load_template(filename):
+    templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+    path = os.path.join(templates_dir, filename)
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+def copy_project_setup_script(project_path):
+    """
+    Copies all template files from /templates to implementations/scripts in the new project.
+    """
+    templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+    scripts_dir = os.path.join(project_path, "implementations", "scripts")
+    os.makedirs(scripts_dir, exist_ok=True)
+
+    for fname in os.listdir(templates_dir):
+        source_path = os.path.join(templates_dir, fname)
+        dest_path = os.path.join(scripts_dir, fname)
+        if fname.endswith(('.py', '.sh', '.bat', '.txt')):
+            with open(source_path, "r", encoding="utf-8") as fsrc:
+                content = fsrc.read()
+            with open(dest_path, "w", encoding="utf-8") as fdst:
+                fdst.write(content)
+        else:
+            # for unexpected files
+            shutil.copy2(source_path, dest_path)
+        print(f"Copied {fname} to {dest_path}")
 
 # Main Function
 def main():
@@ -262,6 +288,10 @@ def main():
 
     # expand gitignore
     write_gitignore(config, final_path)
+
+    # copy setup scripts
+    copy_project_setup_script(final_path)
+
     print("All done! Your new project is ready.")
 
 

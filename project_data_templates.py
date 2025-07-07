@@ -48,7 +48,10 @@ GITIGNORE_ENTRIES = [
     "",
     "",
     "# data folder",
-    "data/*",
+    "data/external/*",
+    "data/interim/*",
+    "data/processed/*",
+    "data/raw/*",
     "",
     "# dev notes",
     "dev_notes/"

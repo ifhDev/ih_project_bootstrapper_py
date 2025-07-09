@@ -22,7 +22,7 @@ def main():
 
     # install dependencies
     print("Installing dependencies from pyproject.toml/uv.lock...")
-    result = subprocess.run(["uv", "pip", "install", "-r", "uv.lock"], capture_output=True, text=True)
+    result = subprocess.run(["uv", "pip", "sync", "uv.lock"], capture_output=True, text=True)
     print(result.stdout)
     if result.returncode != 0:
         print("Error: Failed to install dependencies:", result.stderr)

@@ -249,21 +249,14 @@ def load_template(filename):
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
-def copy_project_setup_script(project_path, project_style):
+def copy_project_setup_script(project_path):
     """
-    Copies all template files from /templates to the correct destination in the new project.
-    - For Data Science style: to src/tools/
-    - For Lightweight Python: to sample/scripts/
+    Copies all template files from /templates to the root folder of new project.
     """
     templates_dir = os.path.join(os.path.dirname(__file__), "templates")
 
     # target decision
-    if project_style == "1":  
-        # Data Science
-        target_dir = os.path.join(project_path, "src/tools/")
-    else:
-        # lightweight Python
-        target_dir = os.path.join(project_path, "sample/scripts/")
+    target_dir = os.path.join(project_path)
 
     os.makedirs(target_dir, exist_ok=True)
 
@@ -320,7 +313,7 @@ def main():
         write_gitignore(final_path)
 
     # copy setup scripts
-    copy_project_setup_script(final_path, project_style)
+    copy_project_setup_script(final_path)
 
     print("All done! Your new project is ready.")
 

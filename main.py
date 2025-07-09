@@ -62,16 +62,6 @@ def prompt_for_valid_directory(prompt_message):
             else:
                 print("Please enter a new folder path.")
 
-def choose_project_template():
-    print("\nChoose project type:")
-    print("1) Data Science (Cookiecutter style folders and .py starter files)")
-    print("2) Lightweight Python (Kenneth Reitz style, only /sample, /docs, /tests)")
-    choice = input("Enter 1 or 2: ").strip()
-    if choice not in ("1", "2"):
-        print("Invalid choice, defaulting to Data Science template.")
-        choice = "1"
-    return choice
-
 
 def load_config():
     """

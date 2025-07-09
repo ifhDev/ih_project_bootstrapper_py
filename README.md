@@ -33,3 +33,9 @@ Cross-platform setup for my projects. Made with data science in mind but might b
 
 - Edit `config.json` to change your standard folder structure, default Python version, or your preferred starter packages.
 - Update the `gitignore_entries` list in `project_data_templates.py` to change what is ignored by default.
+
+## Roadmap
+1. Group related functions into classes
+2. Reduce repeated prompts/logic within functions
+3. Refactor main() logic
+4. Type hints

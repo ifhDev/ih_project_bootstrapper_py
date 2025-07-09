@@ -32,4 +32,4 @@ Cross-platform setup for my projects. Made with data science in mind but might b
 ## Customisation
 
 - Edit `config.json` to change your standard folder structure, default Python version, or your preferred starter packages.
-- Update the `gitignore_entries` list in `config.json` to change what is ignored by default.
+- Update the `gitignore_entries` list in `project_data_templates.py` to change what is ignored by default.

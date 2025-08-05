@@ -26,22 +26,24 @@ DATA_SCIENCE_FILES = [
 ]
 
 # lightweight setup
-LIGHTWEIGHT_FOLDERS = [
-    "sample",
-    "sample/scripts",
-    "docs",
-    "tests"
-]
+def get_lightweight_folders(pkg_name):
+    return [
+        pkg_name,
+        "scripts",
+        "docs",
+        "tests"
+    ]
 
-LIGHTWEIGHT_FILES = [
-    "sample/__init__.py",
-    "sample/core.py",
-    "sample/helpers.py",
-    "docs/conf.py",
-    "docs/index.rst",
-    "tests/test_basic.py",
-    "tests/test_advanced.py"
-]
+def get_lightweight_files(pkg_name):
+    return [
+        f"{pkg_name}/__init__.py",
+        f"{pkg_name}/core.py",
+        f"{pkg_name}/helpers.py",
+        "docs/conf.py",
+        "docs/index.rst",
+        "tests/test_basic.py",
+        "tests/test_advanced.py"
+    ]
 
 # .gitignore entries for Data Science template
 GITIGNORE_ENTRIES = [

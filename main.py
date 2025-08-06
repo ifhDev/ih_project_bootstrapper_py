@@ -42,6 +42,7 @@ def main():
     os.makedirs(project_path, exist_ok=True)
     create_structure(project_path, folders, files)
     init_project(config, project_path)
+    copy_project_setup_script(project_path)
     print("All done! Your new project is ready.")
 
 if __name__ == "__main__":
